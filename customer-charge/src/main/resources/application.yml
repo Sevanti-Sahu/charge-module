@@ -1,0 +1,120 @@
+chargesdata:
+  normalcharges:
+    - country:  AT
+      language: En
+      default-language:  true
+      order-type: TIP
+      links:
+          - http://myapi1.com
+          - http://myapi3.com
+    - country:  NL
+      language: Nl
+      default-language:  true
+      order-type: INST
+      links:
+          - http://myapi2.com
+    - country:  BE
+      language: Fr
+      default-language:  true
+      order-type: DOMCT
+      links:
+          - http://myapp4.com
+          - http://myapp5.com
+    - country:  BE
+      language: De
+      default-language:  false
+      order-type: DOMCT
+      links:
+          - http://myapp6.com
+          - http://myapp7.com
+    - country:  BE
+      language: En
+      default-language:  false
+      order-type: DOMCT
+      links:
+          - http://myapp8.com
+    - country:  LU
+      language: De
+      default-language:  true
+      order-type: TIP
+      links:
+          - http://myapp9.com
+    - country:  LU
+      language: Fr
+      default-language:  false
+      order-type: TIP
+      links:
+          - http://myapp10.com
+    - country:  LU
+      language: En
+      default-language:  false
+      order-type: TIP
+      links:
+          - http://myapp11.com
+    - country:  DE
+      language: De
+      default-language:  true
+      order-type: INST
+      links:
+          - http://myapp12.com
+          - http://myapp13.com
+    - country:  WB
+      language: En
+      default-language:  true
+      order-type: TIP
+      links:
+          - http://myapp14.com
+    - country:  WB
+      language: En
+      default-language:  true
+      order-type: INST
+      links:
+          - http://myapp15.com
+    - country:  WB
+      language: En
+      default-language:  true
+      order-type: DOMCT
+      links:
+          - http://myapp16.com
+fxdata:
+  fxcharges:
+    - country:  AT
+      language: En
+      link: https://myfx1.com
+    - country:  NL
+      language: Nl
+      link: https://myfx2.com
+    - country:  BE
+      language: Fr
+      link: https://myfx3.com
+    - country:  LU
+      language: De
+      link: https://myfx4.com
+    - country:  DE
+      language: De
+      link: https://myfx5.com
+    - country:  PO
+      language: Po
+      link: https://myfx6.com
+    - country:  RO
+      language: Ro
+      link: https://myfx7.com
+countrycurr:
+  mappinglist:
+    - country:  RO
+      currency: RON
+    - country:  PO
+      currency: POL
+    - country:  US
+      currency: USD
+    - country:  NL
+      currency: EUR
+    - country:  GE
+      currency: GEN
+    - country:  AT
+      currency: ATS
+    - country:  LU
+      currency: LUX
+      
+    
+    
