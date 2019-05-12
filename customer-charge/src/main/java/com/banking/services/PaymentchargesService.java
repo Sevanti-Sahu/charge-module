@@ -22,90 +22,133 @@ import com.banking.repositories.PaymentchargesRepository;
 @Service
 public class PaymentchargesService {
 	
-	private PaymentchargesRepository chargesrepository;
-	private Countrycurr countrycurr;
-	private Fxdata fxdata;
-	private Chargesdata chargesdata;
-	private ChargesResponse chargesResponse;
-	
-	private String country;							
-	private String loginsmeanscntry;
-	private String debtcurr;
-	private String paymentType;
-	private Fxcharges fx1;
-	private Normalcharges nm1;
+	private PaymentchargesRepository paymentchargesrepository;
 	
 	@Autowired
-	PaymentchargesService(PaymentchargesRepository chargesrepository,
-			Countrycurr countrycurr,Fxdata fxdata,Chargesdata chargesdata,ChargesResponse chargesResponse)
+	PaymentchargesService(PaymentchargesRepository paymentchargesrepository)
 	{
-		this.chargesrepository = chargesrepository;
-		this.countrycurr = countrycurr;
-		this.fxdata = fxdata;
-		this.chargesResponse = chargesResponse;
+		this.paymentchargesrepository = paymentchargesrepository;
+	
 	}
 	
 	public ResponseEntity<?> getPaymentCharges(ChargesRequestModel requestdata) throws CurrencyNotFoundException
 	{
-		country = requestdata.getLoginmeanscountry();
-		loginsmeanscntry = requestdata.getLoginmeanscountry();
+		
+		String country = requestdata.getLoginmeanscountry();
+		String debtcurr = requestdata.getDebitoragent().getDrcurr();
+	
 		if(country == null)
 		{
 			country = requestdata.getDebitoragent().getDracct().substring(0,2);
 		}
-		paymentType = chargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
-                requestdata.getCreditoracct().getCracct(),
-                requestdata.getInstructedamount().getCurrency(),
-                requestdata.getInstructedamount().getAmount());
 		
-		//Check if FX charges applicable or not
-		debtcurr = requestdata.getDebitoragent().getDrcurr();
 		if(debtcurr == null)
 		{
-			debtcurr = chargesrepository.getCurrencyOfCountry(requestdata.getDebitoragent().getDracct().substring(0,2));
+			debtcurr = paymentchargesrepository.getCurrencyOfCountry(requestdata.getDebitoragent().getDracct().substring(0,2));
 		}
 		
-		if(debtcurr == null)
+		/*if(debtcurr == null)
 		{
 			throw new CurrencyNotFoundException("no valid currency for country");
+		}*/
+		
+		
+		Normalcharges normalcharges = getNormalCharges(requestdata,country);
+		Fxcharges fxcharges = getFxCharges(requestdata,country,debtcurr);
+		ChargesResponse chargesResponse = prepareResponse(normalcharges,fxcharges);
+		if(chargesResponse.getLink().size() == 0)
+		{
+			return new ResponseEntity<ChargesResponse>(chargesResponse,HttpStatus.NO_CONTENT);
+			
 		}
-		if(requestdata.getChargebearer() == "CRED")
-	    {
-	    	System.out.println("NO CHARGES APPLICABLE");
-	    	return new ResponseEntity<ChargesRequestModel>(requestdata,HttpStatus.OK);
-	    }
-	    else
-	    {
-	    	if(debtcurr == requestdata.getInstructedamount().getCurrency())
+		else
+		{
+			return new ResponseEntity<ChargesResponse>(chargesResponse,HttpStatus.OK);
+		
+		}
+		
+		
+	    
+   }
+		
+	    //Check if normal charges applicable or not and get it
+		private Normalcharges getNormalCharges(ChargesRequestModel requestdata,String country)
+		{
+			String paymentType = paymentchargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
+	                requestdata.getCreditoracct().getCracct(),
+	                requestdata.getInstructedamount().getCurrency());
+			
+			Normalcharges normalmcharges ;
+			
+			if((requestdata.getChargebearer()).equals("CRED"))
+		    {
+		    	System.out.println("NO CHARGES APPLICABLE");
+		    	normalmcharges = null;
+		    }
+		    else
+		    {
+		    	System.out.println("NORMAL CHARGES APPLICABLE");
+		    	normalmcharges = paymentchargesrepository.getNormalCharges(paymentType,country);
+		    	
+		    }
+			return normalmcharges;
+		}
+		
+		//check if FX charges applicable or not and get it
+		private Fxcharges getFxCharges(ChargesRequestModel requestdata,String country,String debtcurr)
+		{
+			Fxcharges fxcharge;
+			if((debtcurr).equals(requestdata.getInstructedamount().getCurrency()))
 			{
-	        	nm1 = chargesrepository.getNormalCharges(requestdata,paymentType,country);
-	    		System.out.println("NORMAL CHARGES APPLICABLE");
 				System.out.println("NO FX CHARGES APPLICABLE");
+				fxcharge = null;
 			}
 			else
 			{
-				nm1 = chargesrepository.getNormalCharges(requestdata,paymentType,country);
-				System.out.println("NORMAL CHARGES APPLICABLE");
 				if(country != "WB")
 				{
-					fx1 = chargesrepository.getFxCharges(requestdata,country);
+					fxcharge = paymentchargesrepository.getFxCharges(country);
+					
 				}
+				else
+				{
+					System.out.println("NO FX CHARGES APPLICABLE");
+					fxcharge = null;
+				
+				}		
 				 
 			}
-	    	List<Link> links = new ArrayList<>();
-	    	Link lk = new Link(fx1.getLink(),"FX",fx1.getLanguage(),"text","GE foreign exchange");
-	    	links.add(lk);
-	    	List<String> ls = nm1.getLinks();
-	    	for(String list : ls)
-	    	{
-	    		Link lk1 = new Link(list,"CHRG",nm1.getLanguage(),"text","GE charges");
-	    		links.add(lk1);
-	    	}
-		    //Link lk = new Link(nm1.get,"CHRG",nm1.getLanguage(),"text","GE charges");
-		    //links.add(lk);
-		    chargesResponse.setLink(links);
-			return new ResponseEntity<ChargesResponse>(chargesResponse,HttpStatus.OK);
+		  return fxcharge;
 	    }
 		
-	}
+		//preparing ressponse
+		private ChargesResponse prepareResponse(Normalcharges normalcharges,Fxcharges fxcharges)
+		{
+			ChargesResponse chargesResponse = new ChargesResponse();
+			List<Link> links = new ArrayList<>();
+			
+			if(fxcharges != null)
+			{
+				Link fxlink = new Link(fxcharges.getLink(),"FX",fxcharges.getLanguage(),"text","GE foreign exchange");
+		    	links.add(fxlink);
+		    	System.out.println("RESPONSE-NO FX CHARGES APPLICABLE");
+			}
+	    	if(normalcharges != null)
+	    	{
+	    		List<String> nmlink = normalcharges.getLinks();
+		    	for(String list : nmlink)
+		    	{
+		    		Link lk1 = new Link(list,"CHRG",normalcharges.getLanguage(),"text","GE charges");
+		    		links.add(lk1);
+		    	}
+		    	System.out.println("RESPONSE-NO normal CHARGES APPLICABLE");
+	    	}
+	    	if(normalcharges != null || fxcharges != null)
+	    	{
+	    		chargesResponse.setLink(links);
+	    		System.out.println("RESPONSE-NO CHARGES APPLICABLE");
+	    	}
+	    	
+			return chargesResponse;
+		}
 }
