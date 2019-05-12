@@ -27,17 +27,15 @@ public class PaymentchargesRepository {
 	
 
 	private Fxdata fxdata;
-	
 	private Chargesdata chargesdata;
-	
-	private Countrycurr countrycurr;
-	private String language;
-	
+	private Countrycurr countrycurr;	
 	private Map<String,Fxcharges> fxchargesmap ;
-	
+	private Map<String,String> countrycurrmap;
+	private Map<String,String> countrylanguagemap;
+	private Map<CountryLanguageOrderType,Normalcharges> normalchargesmap;
 	
 	@Autowired
-	PaymentchargesRepository(Fxdata fxdata,Chargesdata chargesdata,Countrycurr countrycurr )
+	PaymentchargesRepository(Fxdata fxdata,Chargesdata chargesdata,Countrycurr countrycurr)
 	{
 		this.fxdata = fxdata;
 		this.chargesdata = chargesdata;
@@ -49,39 +47,85 @@ public class PaymentchargesRepository {
 	public void init()
 	{
 		this.fxchargesmap = preparefxmap(fxdata);
+		this.countrycurrmap = prepareCountryCurrMap(countrycurr);
+		this.countrylanguagemap = mappingDefaultLanguageOfCountry(chargesdata);
+		this.normalchargesmap = prepareNormalChargesMap(chargesdata);
+		System.out.println("fxchargesmap");
+		fxchargesmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
+		System.out.println("countrycurrmap");
+		countrycurrmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
+		System.out.println("countrylanguagemap");
+		countrylanguagemap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
+		System.out.println("normalchargesmap");
+		normalchargesmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
 		System.out.println("pradeep");
 	}
 	
-	
-	public Map<String,Fxcharges> preparefxmap(Fxdata fxdata)
+	private Map<String,Fxcharges> preparefxmap(Fxdata fxdata)
 	{
-		Map<String,Fxcharges> map1 = new HashMap<>();
+		Map<String,Fxcharges> fxmap = new HashMap<>();
 		
 		for(Fxcharges fx : fxdata.getFxcharges())
 		{
-			map1.put(fx.getCountry(),fx);
+			fxmap.put(fx.getCountry(),fx);
+	
 		}
-		return map1;
+		return fxmap;
 	}
 	
-	
-	//Method to get Normal charges details
-	public Normalcharges getNormalCharges(ChargesRequestModel requestdata,String paymentType,String country)
+	private Map<String,String> prepareCountryCurrMap(Countrycurr countrycurr)
 	{
-		language = mappingDefaultLanguageOfCountry(country);
-		return getNormalChargesLinks(country,language,paymentType);
+		Map<String,String> currmap = new HashMap<>();
+		for(Mappinglist ml : countrycurr.getMappinglist())
+	  	  {
+			currmap.put(ml.getCountry(),ml.getCurrency());
+		  }
+		return currmap;
 	}
 	
+	private Map<String,String> mappingDefaultLanguageOfCountry(Chargesdata chargesdata)
+	{
+		Map<String,String> countrylanguagemap = new HashMap<>();
+		for(Normalcharges nm : chargesdata.getNormalcharges())
+		{
+			if(nm.getDefaultLanguage() == true){
+				countrylanguagemap.put(nm.getCountry(),nm.getLanguage());
+			}
+			
+		}
+		return countrylanguagemap;
+	}
+	 
+	private Map<CountryLanguageOrderType,Normalcharges> prepareNormalChargesMap(Chargesdata chargesdata)
+	{
+		List<Normalcharges> normalcharges = chargesdata.getNormalcharges();
+		Map<CountryLanguageOrderType,Normalcharges> normalchargesmap = new HashMap<>();
+		for(Normalcharges nm : normalcharges)
+		{	
+			normalchargesmap.put(CountryLanguageOrderType.of(nm.getCountry(), nm.getLanguage(), nm.getOrderType()), nm);
+		}
+		return normalchargesmap;
+	}
 	
+	//Method for retrieving currency of Country
+	public String getCurrencyOfCountry(String country)
+	{
+		  return countrycurrmap.get(country);
+	}
+		
 	//Method to get FX charges details
-	public Fxcharges getFxCharges(ChargesRequestModel requestdata,String country)
+	public Fxcharges getFxCharges(String country)
 	{
-		return getFxChargesLink(country);
+		return fxchargesmap.get(country);
 	}
 	
+	private String getLanguageOfCountry(String country)
+	{
+		return countrylanguagemap.get(country);
+	}
 	
 	//Method determining order type of transaction(POT API)
-	public String getPaymentType(String dracct,String cracct,String curr,Double amount)
+	public String getPaymentType(String dracct,String cracct,String curr)
 	{
 		if((dracct.substring(0,2)) == (cracct.substring(0,2)))
 		{
@@ -94,66 +138,21 @@ public class PaymentchargesRepository {
 			return "TIP";
 	}
 	
-	//Method for mapping country with its default language
-	public String mappingDefaultLanguageOfCountry(String country)
+	//Method to get Normal charges details
+	public Normalcharges getNormalCharges(String paymentType,String country)
 	{
-		List<Normalcharges> normalcharges = chargesdata.getNormalcharges();
-		Map<String,String> map3 = new HashMap<>();
-		for(Normalcharges nm : normalcharges)
-		{
-			if(nm.getDefaultLanguage() == true){
-				map3.put(nm.getCountry(),nm.getLanguage());
-			}
-			
-		}
-		return map3.get(country);
+		String language = getLanguageOfCountry(country);
+		Normalcharges normal = getNormalChargesLinks(country,language,paymentType);
+		return normal;
 	}
 	
-	 public Normalcharges getNormalChargesLinks(String country,String language,String orderType)
+	private Normalcharges getNormalChargesLinks(String country,String language,String orderType)
 	{
 		
-		List<Normalcharges> normalcharges = chargesdata.getNormalcharges();
-		Map<CountryLanguageOrderType,Normalcharges> map3 = new HashMap<>();
-		for(Normalcharges nm : normalcharges)
-		{
-		
-		map3.put(CountryLanguageOrderType.of(nm.getCountry(), nm.getLanguage(), nm.getOrderType()), nm);
-		}
-		System.out.println("SEVANTI");
-		map3.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
-		Normalcharges nm = new Normalcharges();
-		nm = map3.get(CountryLanguageOrderType.of(country, language, orderType));
-	   return nm;
-	} 
-	
-	//Method for retrieving Fxdata
-	public Fxcharges getFxChargesLink(String country)
-	{
-		/*List<Fxcharges> fxcharges = fxdata.getFxcharges();
-		Map<String,Fxcharges> map1 = new HashMap<>();
-		for(Fxcharges fx : fxcharges)
-		{
-			map1.put(fx.getCountry(),fx);
-		}*/
-		//return map1.get(country);
-		return fxchargesmap.get(country);
-		
+		//map3.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
+		return normalchargesmap.get(CountryLanguageOrderType.of(country, language, orderType));
 	}
-	
-	
-	//Method for retrieving currency of Country
-	public String getCurrencyOfCountry(String cntry)
-	{
-	  List<Mappinglist> mappinglist = countrycurr.getMappinglist();
-	  Map<String,String> map2 = new HashMap<>();
-	  for(Mappinglist ml : mappinglist)
-  	  {
-		 map2.put(ml.getCountry(),ml.getCurrency());
-	  }
-	  return map2.get(cntry);
-	}
-	
-	
+		
 	public static class CountryLanguageOrderType{
 		private String country;
 		private String language;
