@@ -67,7 +67,7 @@ public class PaymentchargesRepository {
 		
 		for(Fxcharges fx : fxdata.getFxcharges())
 		{
-			fxmap.put(fx.getCountry(),fx);
+			fxmap.put((fx.getCountry()).toUpperCase(),fx);
 	
 		}
 		return fxmap;
@@ -78,7 +78,7 @@ public class PaymentchargesRepository {
 		Map<String,String> currmap = new HashMap<>();
 		for(Mappinglist ml : countrycurr.getMappinglist())
 	  	  {
-			currmap.put(ml.getCountry(),ml.getCurrency());
+			currmap.put((ml.getCountry()).toUpperCase(),ml.getCurrency());
 		  }
 		return currmap;
 	}
@@ -89,7 +89,7 @@ public class PaymentchargesRepository {
 		for(Normalcharges nm : chargesdata.getNormalcharges())
 		{
 			if(nm.getDefaultLanguage() == true){
-				countrylanguagemap.put(nm.getCountry(),nm.getLanguage());
+				countrylanguagemap.put((nm.getCountry()).toUpperCase(),nm.getLanguage());
 			}
 			
 		}
@@ -102,7 +102,7 @@ public class PaymentchargesRepository {
 		Map<CountryLanguageOrderType,Normalcharges> normalchargesmap = new HashMap<>();
 		for(Normalcharges nm : normalcharges)
 		{	
-			normalchargesmap.put(CountryLanguageOrderType.of(nm.getCountry(), nm.getLanguage(), nm.getOrderType()), nm);
+			normalchargesmap.put(CountryLanguageOrderType.of(nm.getCountry().toUpperCase(), nm.getLanguage().toUpperCase(), nm.getOrderType().toUpperCase()), nm);
 		}
 		return normalchargesmap;
 	}
@@ -110,18 +110,18 @@ public class PaymentchargesRepository {
 	//Method for retrieving currency of Country
 	public String getCurrencyOfCountry(String country)
 	{
-		  return countrycurrmap.get(country);
+		  return countrycurrmap.get(country.toUpperCase());
 	}
 		
 	//Method to get FX charges details
 	public Fxcharges getFxCharges(String country)
 	{
-		return fxchargesmap.get(country);
+		return fxchargesmap.get(country.toUpperCase());
 	}
 	
 	private String getLanguageOfCountry(String country)
 	{
-		return countrylanguagemap.get(country);
+		return countrylanguagemap.get(country.toUpperCase());
 	}
 	
 	//Method determining order type of transaction(POT API)
@@ -149,8 +149,7 @@ public class PaymentchargesRepository {
 	private Normalcharges getNormalChargesLinks(String country,String language,String orderType)
 	{
 		
-		//map3.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
-		return normalchargesmap.get(CountryLanguageOrderType.of(country, language, orderType));
+		return normalchargesmap.get(CountryLanguageOrderType.of(country.toUpperCase(), language.toUpperCase(), orderType.toUpperCase()));
 	}
 		
 	public static class CountryLanguageOrderType{
