@@ -50,15 +50,8 @@ public class PaymentchargesRepository {
 		this.countrycurrmap = prepareCountryCurrMap(countrycurr);
 		this.countrylanguagemap = mappingDefaultLanguageOfCountry(chargesdata);
 		this.normalchargesmap = prepareNormalChargesMap(chargesdata);
-		System.out.println("fxchargesmap");
-		fxchargesmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
-		System.out.println("countrycurrmap");
-		countrycurrmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
-		System.out.println("countrylanguagemap");
-		countrylanguagemap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
-		System.out.println("normalchargesmap");
-		normalchargesmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
-		System.out.println("pradeep");
+		//normalchargesmap.forEach((k,v)->System.out.println("key: " + k + ", value: " + v));
+	
 	}
 	
 	private Map<String,Fxcharges> preparefxmap(Fxdata fxdata)
@@ -142,14 +135,7 @@ public class PaymentchargesRepository {
 	public Normalcharges getNormalCharges(String paymentType,String country)
 	{
 		String language = getLanguageOfCountry(country);
-		Normalcharges normal = getNormalChargesLinks(country,language,paymentType);
-		return normal;
-	}
-	
-	private Normalcharges getNormalChargesLinks(String country,String language,String orderType)
-	{
-		
-		return normalchargesmap.get(CountryLanguageOrderType.of(country.toUpperCase(), language.toUpperCase(), orderType.toUpperCase()));
+		return normalchargesmap.get(CountryLanguageOrderType.of(country.toUpperCase(), language.toUpperCase(), paymentType.toUpperCase()));
 	}
 		
 	public static class CountryLanguageOrderType{

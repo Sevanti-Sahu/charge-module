@@ -22,12 +22,12 @@ import com.banking.repositories.PaymentchargesRepository;
 @Service
 public class PaymentchargesService {
 	
-	private PaymentchargesRepository chargesrepository;
+	private PaymentchargesRepository paymentchargesrepository;
 	
 	@Autowired
-	PaymentchargesService(PaymentchargesRepository chargesrepository)
+	PaymentchargesService(PaymentchargesRepository paymentchargesrepository)
 	{
-		this.chargesrepository = chargesrepository;
+		this.paymentchargesrepository = paymentchargesrepository;
 	
 	}
 	
@@ -44,7 +44,7 @@ public class PaymentchargesService {
 		
 		if(debtcurr == null)
 		{
-			debtcurr = chargesrepository.getCurrencyOfCountry(requestdata.getDebitoragent().getDracct().substring(0,2));
+			debtcurr = paymentchargesrepository.getCurrencyOfCountry(requestdata.getDebitoragent().getDracct().substring(0,2));
 		}
 		
 		/*if(debtcurr == null)
@@ -56,7 +56,7 @@ public class PaymentchargesService {
 		Normalcharges normalcharges = getNormalCharges(requestdata,country);
 		Fxcharges fxcharges = getFxCharges(requestdata,country,debtcurr);
 		ChargesResponse chargesResponse = prepareResponse(normalcharges,fxcharges);
-		if(chargesResponse == null)
+		if(chargesResponse.getLink().size() == 0)
 		{
 			return new ResponseEntity<ChargesResponse>(chargesResponse,HttpStatus.NO_CONTENT);
 			
@@ -67,57 +67,61 @@ public class PaymentchargesService {
 		
 		}
 		
+		
 	    
    }
 		
 	    //Check if normal charges applicable or not and get it
 		private Normalcharges getNormalCharges(ChargesRequestModel requestdata,String country)
 		{
-			String paymentType = chargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
+			String paymentType = paymentchargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
 	                requestdata.getCreditoracct().getCracct(),
 	                requestdata.getInstructedamount().getCurrency());
 			
-			Normalcharges nmcharges = new Normalcharges();
+			Normalcharges normalmcharges ;
 			
 			if((requestdata.getChargebearer()).equals("CRED"))
 		    {
 		    	System.out.println("NO CHARGES APPLICABLE");
+		    	normalmcharges = null;
 		    }
 		    else
 		    {
 		    	System.out.println("NORMAL CHARGES APPLICABLE");
-		    	nmcharges = chargesrepository.getNormalCharges(paymentType,country);
+		    	normalmcharges = paymentchargesrepository.getNormalCharges(paymentType,country);
 		    	
 		    }
-			return nmcharges;
+			return normalmcharges;
 		}
 		
 		//check if FX charges applicable or not and get it
 		private Fxcharges getFxCharges(ChargesRequestModel requestdata,String country,String debtcurr)
 		{
-			Fxcharges fxcharge = new Fxcharges();
+			Fxcharges fxcharge;
 			if((debtcurr).equals(requestdata.getInstructedamount().getCurrency()))
 			{
 				System.out.println("NO FX CHARGES APPLICABLE");
+				fxcharge = null;
 			}
 			else
 			{
 				if(country != "WB")
 				{
-					fxcharge = chargesrepository.getFxCharges(country);
+					fxcharge = paymentchargesrepository.getFxCharges(country);
 					
 				}
 				else
 				{
 					System.out.println("NO FX CHARGES APPLICABLE");
+					fxcharge = null;
 				
-				}
-				
+				}		
 				 
 			}
 		  return fxcharge;
 	    }
 		
+		//preparing ressponse
 		private ChargesResponse prepareResponse(Normalcharges normalcharges,Fxcharges fxcharges)
 		{
 			ChargesResponse chargesResponse = new ChargesResponse();
@@ -127,6 +131,7 @@ public class PaymentchargesService {
 			{
 				Link fxlink = new Link(fxcharges.getLink(),"FX",fxcharges.getLanguage(),"text","GE foreign exchange");
 		    	links.add(fxlink);
+		    	System.out.println("RESPONSE-NO FX CHARGES APPLICABLE");
 			}
 	    	if(normalcharges != null)
 	    	{
@@ -136,10 +141,12 @@ public class PaymentchargesService {
 		    		Link lk1 = new Link(list,"CHRG",normalcharges.getLanguage(),"text","GE charges");
 		    		links.add(lk1);
 		    	}
+		    	System.out.println("RESPONSE-NO normal CHARGES APPLICABLE");
 	    	}
 	    	if(normalcharges != null || fxcharges != null)
 	    	{
 	    		chargesResponse.setLink(links);
+	    		System.out.println("RESPONSE-NO CHARGES APPLICABLE");
 	    	}
 	    	
 			return chargesResponse;
