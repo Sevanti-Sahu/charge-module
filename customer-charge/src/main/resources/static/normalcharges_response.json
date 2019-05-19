@@ -1,0 +1,18 @@
+{
+    "link": [
+        {
+            "hrref": "http://myapi1.com",
+            "rel": "CHRG",
+            "language": "En",
+            "media": "text",
+            "description": "GE charges"
+        },
+        {
+            "hrref": "http://myapi3.com",
+            "rel": "CHRG",
+            "language": "En",
+            "media": "text",
+            "description": "GE charges"
+        }
+    ]
+}

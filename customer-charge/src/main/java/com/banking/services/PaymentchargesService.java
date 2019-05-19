@@ -79,10 +79,7 @@ public class PaymentchargesService {
 			String paymentType = paymentchargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
 	                requestdata.getCreditoracct().getCracct(),
 	                requestdata.getInstructedamount().getCurrency());
-			
 
-		   
-		    
 		    	System.out.println("NORMAL CHARGES APPLICABLE");
 		    	normalmcharges = paymentchargesrepository.getNormalCharges(paymentType,country);
 		    	
@@ -128,7 +125,7 @@ public class PaymentchargesService {
 			{
 				Link fxlink = new Link(fxcharges.getLink(),"FX",fxcharges.getLanguage(),"text","GE foreign exchange");
 		    	links.add(fxlink);
-		    	System.out.println("RESPONSE-NO FX CHARGES APPLICABLE");
+		    	System.out.println("RESPONSE-FX CHARGES APPLICABLE");
 			}
 	    	if(normalcharges != null)
 	    	{
@@ -138,12 +135,12 @@ public class PaymentchargesService {
 		    		Link lk1 = new Link(list,"CHRG",normalcharges.getLanguage(),"text","GE charges");
 		    		links.add(lk1);
 		    	}
-		    	System.out.println("RESPONSE-NO normal CHARGES APPLICABLE");
+		    	System.out.println("RESPONSE-Normal CHARGES APPLICABLE");
 	    	}
 	    	if(normalcharges != null || fxcharges != null)
 	    	{
 	    		chargesResponse.setLink(links);
-	    		System.out.println("RESPONSE-NO CHARGES APPLICABLE");
+	    		System.out.println("RESPONSE-CHARGES APPLICABLE");
 	    	}
 	    	
 			return chargesResponse;
