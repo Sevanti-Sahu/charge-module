@@ -25,7 +25,7 @@ public class PaymentchargesService {
 	private PaymentchargesRepository paymentchargesrepository;
 	
 	@Autowired
-	PaymentchargesService(PaymentchargesRepository paymentchargesrepository)
+	public PaymentchargesService(PaymentchargesRepository paymentchargesrepository)
 	{
 		this.paymentchargesrepository = paymentchargesrepository;
 	
@@ -74,23 +74,20 @@ public class PaymentchargesService {
 	    //Check if normal charges applicable or not and get it
 		private Normalcharges getNormalCharges(ChargesRequestModel requestdata,String country)
 		{
+			Normalcharges normalmcharges = null;
+			if((!(requestdata.getChargebearer()).equals("CRED"))){
 			String paymentType = paymentchargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
 	                requestdata.getCreditoracct().getCracct(),
 	                requestdata.getInstructedamount().getCurrency());
 			
-			Normalcharges normalmcharges ;
-			
-			if((requestdata.getChargebearer()).equals("CRED"))
-		    {
-		    	System.out.println("NO CHARGES APPLICABLE");
-		    	normalmcharges = null;
-		    }
-		    else
-		    {
+
+		   
+		    
 		    	System.out.println("NORMAL CHARGES APPLICABLE");
 		    	normalmcharges = paymentchargesrepository.getNormalCharges(paymentType,country);
 		    	
-		    }
+		    
+			}
 			return normalmcharges;
 		}
 		

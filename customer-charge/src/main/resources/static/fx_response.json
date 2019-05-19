@@ -1,0 +1,11 @@
+{
+    "link": [
+        {
+            "hrref": "https://myfx1.com",
+            "rel": "FX",
+            "language": "En",
+            "media": "text",
+            "description": "GE foreign exchange"
+        }
+    ]
+}
