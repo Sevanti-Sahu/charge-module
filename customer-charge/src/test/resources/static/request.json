@@ -1,0 +1,20 @@
+{
+  "debitoragent": 
+  {
+   "dracct": "NL123456789",
+   "drcurr": "EUR"
+  },
+  "instructedamount": 
+  {
+  "amount": "1234567.123",
+  "currency": "USD"
+  },
+  "creditoracct":
+  {
+  "cracct": "AT123456789",
+  "crcurr": "ATS"
+  },
+  "chargebearer": "CRED",
+  "language": "En",
+  "loginmeanscountry": "AT"
+}

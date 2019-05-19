@@ -25,7 +25,7 @@ public class PaymentchargesService {
 	private PaymentchargesRepository paymentchargesrepository;
 	
 	@Autowired
-	PaymentchargesService(PaymentchargesRepository paymentchargesrepository)
+	public PaymentchargesService(PaymentchargesRepository paymentchargesrepository)
 	{
 		this.paymentchargesrepository = paymentchargesrepository;
 	
@@ -74,23 +74,17 @@ public class PaymentchargesService {
 	    //Check if normal charges applicable or not and get it
 		private Normalcharges getNormalCharges(ChargesRequestModel requestdata,String country)
 		{
+			Normalcharges normalmcharges = null;
+			if((!(requestdata.getChargebearer()).equals("CRED"))){
 			String paymentType = paymentchargesrepository.getPaymentType(requestdata.getDebitoragent().getDracct(), 
 	                requestdata.getCreditoracct().getCracct(),
 	                requestdata.getInstructedamount().getCurrency());
-			
-			Normalcharges normalmcharges ;
-			
-			if((requestdata.getChargebearer()).equals("CRED"))
-		    {
-		    	System.out.println("NO CHARGES APPLICABLE");
-		    	normalmcharges = null;
-		    }
-		    else
-		    {
+
 		    	System.out.println("NORMAL CHARGES APPLICABLE");
 		    	normalmcharges = paymentchargesrepository.getNormalCharges(paymentType,country);
 		    	
-		    }
+		    
+			}
 			return normalmcharges;
 		}
 		
@@ -131,7 +125,7 @@ public class PaymentchargesService {
 			{
 				Link fxlink = new Link(fxcharges.getLink(),"FX",fxcharges.getLanguage(),"text","GE foreign exchange");
 		    	links.add(fxlink);
-		    	System.out.println("RESPONSE-NO FX CHARGES APPLICABLE");
+		    	System.out.println("RESPONSE-FX CHARGES APPLICABLE");
 			}
 	    	if(normalcharges != null)
 	    	{
@@ -141,12 +135,12 @@ public class PaymentchargesService {
 		    		Link lk1 = new Link(list,"CHRG",normalcharges.getLanguage(),"text","GE charges");
 		    		links.add(lk1);
 		    	}
-		    	System.out.println("RESPONSE-NO normal CHARGES APPLICABLE");
+		    	System.out.println("RESPONSE-Normal CHARGES APPLICABLE");
 	    	}
 	    	if(normalcharges != null || fxcharges != null)
 	    	{
 	    		chargesResponse.setLink(links);
-	    		System.out.println("RESPONSE-NO CHARGES APPLICABLE");
+	    		System.out.println("RESPONSE-CHARGES APPLICABLE");
 	    	}
 	    	
 			return chargesResponse;
