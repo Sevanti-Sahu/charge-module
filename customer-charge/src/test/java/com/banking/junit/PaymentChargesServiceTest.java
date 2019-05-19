@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.banking.ReadFileAsString;
+import com.banking.util.ReadFileAsString;
 import com.banking.exception.CurrencyNotFoundException;
 import com.banking.model.request.ChargesRequestModel;
 import com.banking.model.response.ChargesResponse;
@@ -43,7 +43,7 @@ public class PaymentChargesServiceTest {
 	@Before
 	public void before() throws IOException
 	{	
-	String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\main\\resources\\static\\request.json";
+	String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\test\\resources\\static\\request.json";
 	ReadFileAsString read = new ReadFileAsString();
 	paymentChargesService = new PaymentchargesService(paymentChargesRepository);
 	String str = read.readFileAsString(path);
@@ -71,7 +71,7 @@ public class PaymentChargesServiceTest {
 		fxcharge.setLink("https://myfx1.com");
 		when(paymentChargesRepository.getFxCharges(Mockito.anyString())).thenReturn(fxcharge);
 		ResponseEntity<?> response = paymentChargesService.getPaymentCharges(requestdata);
-		String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\main\\resources\\static\\fx_response.json";
+		String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\test\\resources\\static\\fx_response.json";
 		afterTest(path,response);					
 	}
 
@@ -92,7 +92,7 @@ public class PaymentChargesServiceTest {
 		when(paymentChargesRepository.getPaymentType(Mockito.anyString(), Mockito.anyString(),Mockito.anyString())).thenReturn("TIP");
 		when(paymentChargesRepository.getNormalCharges(Mockito.anyString(), Mockito.anyString())).thenReturn(normalcharges);
 		ResponseEntity<?> response = paymentChargesService.getPaymentCharges(requestdata);
-		String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\main\\resources\\static\\normalcharges_response.json";
+		String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\test\\resources\\static\\normalcharges_response.json";
 		afterTest(path,response);	
 	}
 	
@@ -119,7 +119,7 @@ public class PaymentChargesServiceTest {
 		when(paymentChargesRepository.getNormalCharges(Mockito.anyString(), Mockito.anyString())).thenReturn(normalcharges);
 		
 		ResponseEntity<?> response = paymentChargesService.getPaymentCharges(requestdata);
-		String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\main\\resources\\static\\bothcharges_response.json";
+		String path = "C:\\Users\\DELL\\git\\paymentCharge\\customer-charge\\src\\test\\resources\\static\\bothcharges_response.json";
 		afterTest(path,response);	
 	}
 	
