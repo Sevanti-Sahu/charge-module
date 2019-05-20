@@ -47,10 +47,10 @@ public class PaymentchargesService {
 			debtcurr = paymentchargesrepository.getCurrencyOfCountry(requestdata.getDebitoragent().getDracct().substring(0,2));
 		}
 		
-		/*if(debtcurr == null)
+		if(debtcurr == null)
 		{
 			throw new CurrencyNotFoundException("no valid currency for country");
-		}*/
+		}
 		
 		
 		Normalcharges normalcharges = getNormalCharges(requestdata,country);
